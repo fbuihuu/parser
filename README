@@ -1,0 +1,55 @@
+This 'project' aims at implementing basic parsers for a very simple
+grammar which describes arithmetic expressions.
+
+Below is the grammar in BNF:
+
+    <integer>		::= [0-9][0-9]*
+
+    <primary-exp>	::= <integer> | "(" <exp> ")"
+
+    <mult-exp>		::= <primary-exp>
+			  | <mult-exp> "*" <primary-exp>
+
+    <sum-exp>		::= <mult-exp>
+			  | <sum-exp> "+" <mult-exp>
+			  | <sum-exp> "-" <mult-exp>
+
+    <exp>		::= <sum-exp>
+
+
+Same grammar using EBNF:
+
+   digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+
+   integer = [ "-" ] , digit , {digit} ;
+
+   val = '(' sum ')' | integer ;
+
+   prod = val , { ('*'|'/'|'%'), val } ;
+
+   sum = prod , { ('+'|'-'), prod } ;
+
+   expr = sum
+
+
+
+rdp.c: Implements the parser using a recursive descent parser (a
+common way to program an LL parser). With many levels of precedence,
+implementing this grammar with a predictive recursive-descent parser
+can become inefficient. Parsing a number, for example, can require
+four function calls (one for each non-terminal in the grammar, until
+we reach primary-exp).
+
+http://www.garshol.priv.no/download/text/bnf.html#id1.2.
+
+opp.c: The operator-precedence parser can parse all LR(1) grammars
+where two consecutive nonterminals never appear in the right-hand side
+of any rule.
+
+They can be written to consult an operator table at runtime, which
+makes them suitable for languages that can add to or change their
+operators while parsing.
+
+The idea is that we can left associate the arithmetic operations as
+long as we find operators with the same precedence, but we have to
+save a temporary result to evaluate higher precedence operators.
